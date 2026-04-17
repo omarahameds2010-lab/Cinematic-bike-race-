@@ -1,1 +1,1295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>APEX DOWNHILL — Cinematic Race Production</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;600;700;900&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --fire: #FF4500;
+    --gold: #FFB300;
+    --teal: #00E5CC;
+    --dark: #080808;
+    --mid: #111111;
+    --card: #161616;
+    --border: #222222;
+    --text: #EEEEEE;
+    --muted: #666666;
+  }
 
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--dark);
+    color: var(--text);
+    font-family: 'Barlow', sans-serif;
+    overflow-x: hidden;
+    cursor: crosshair;
+  }
+
+  /* ── HERO ─────────────────────────── */
+  .hero {
+    position: relative;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: #000;
+  }
+
+  .hero-bg {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 50% 40%, rgba(255,69,0,0.12) 0%, transparent 70%),
+      radial-gradient(ellipse 60% 80% at 80% 60%, rgba(0,229,204,0.06) 0%, transparent 60%),
+      linear-gradient(180deg, #000 0%, #0a0a0a 50%, #000 100%);
+  }
+
+  /* animated grid */
+  .hero-grid {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(255,69,0,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,69,0,0.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+    animation: gridMove 8s linear infinite;
+  }
+  @keyframes gridMove {
+    0%   { background-position: 0 0; }
+    100% { background-position: 60px 60px; }
+  }
+
+  /* dust particles */
+  .particle {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255,179,0,0.4);
+    animation: float linear infinite;
+    pointer-events: none;
+  }
+  @keyframes float {
+    0%   { transform: translateY(100vh) translateX(0) scale(0); opacity: 0; }
+    10%  { opacity: 1; }
+    90%  { opacity: 0.6; }
+    100% { transform: translateY(-20px) translateX(var(--drift)) scale(1.5); opacity: 0; }
+  }
+
+  .hero-content {
+    position: relative; z-index: 2;
+    text-align: center;
+    animation: heroIn 1.2s cubic-bezier(0.22,1,0.36,1) forwards;
+  }
+  @keyframes heroIn {
+    from { opacity: 0; transform: translateY(60px) scale(0.95); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .hero-badge {
+    display: inline-block;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--teal);
+    border: 1px solid var(--teal);
+    padding: 6px 18px;
+    margin-bottom: 24px;
+    animation: badgePulse 2s ease-in-out infinite;
+  }
+  @keyframes badgePulse {
+    0%,100% { box-shadow: 0 0 0 0 rgba(0,229,204,0.3); }
+    50%      { box-shadow: 0 0 0 10px rgba(0,229,204,0); }
+  }
+
+  .hero-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(72px, 14vw, 180px);
+    line-height: 0.9;
+    letter-spacing: -2px;
+    background: linear-gradient(135deg, #fff 0%, #FFB300 40%, #FF4500 80%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: none;
+    position: relative;
+  }
+
+  .hero-sub {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: clamp(16px, 3vw, 26px);
+    font-weight: 300;
+    letter-spacing: 8px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.5);
+    margin-top: 12px;
+  }
+
+  .hero-stats {
+    display: flex;
+    justify-content: center;
+    gap: 48px;
+    margin-top: 48px;
+    flex-wrap: wrap;
+  }
+  .stat {
+    text-align: center;
+  }
+  .stat-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 42px;
+    color: var(--fire);
+    display: block;
+    line-height: 1;
+  }
+  .stat-label {
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .scroll-hint {
+    position: absolute;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    animation: bounce 2s ease-in-out infinite;
+    color: var(--muted);
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+  .scroll-line {
+    width: 1px;
+    height: 40px;
+    background: linear-gradient(to bottom, var(--fire), transparent);
+  }
+  @keyframes bounce {
+    0%,100% { transform: translateX(-50%) translateY(0); }
+    50%      { transform: translateX(-50%) translateY(8px); }
+  }
+
+  /* ── SECTIONS ─────────────────────── */
+  section {
+    padding: 100px 0;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+
+  .section-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    color: var(--fire);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .section-label::before {
+    content: '';
+    width: 30px;
+    height: 2px;
+    background: var(--fire);
+  }
+
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(48px, 6vw, 88px);
+    line-height: 0.95;
+    letter-spacing: 1px;
+  }
+
+  /* ── MASTER PROMPT ────────────────── */
+  .prompt-section {
+    background: var(--mid);
+    position: relative;
+    overflow: hidden;
+  }
+  .prompt-section::before {
+    content: 'PROMPT';
+    position: absolute;
+    right: -40px;
+    top: 50%;
+    transform: translateY(-50%) rotate(90deg);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 200px;
+    color: rgba(255,69,0,0.03);
+    letter-spacing: 10px;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+
+  .prompt-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--fire);
+    padding: 36px;
+    position: relative;
+    margin-top: 48px;
+  }
+
+  .prompt-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .prompt-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--teal);
+  }
+
+  .copy-btn {
+    background: none;
+    border: 1px solid var(--fire);
+    color: var(--fire);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 8px 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .copy-btn:hover {
+    background: var(--fire);
+    color: #000;
+  }
+  .copy-btn:active { transform: scale(0.97); }
+
+  .prompt-text {
+    font-size: 14px;
+    line-height: 1.9;
+    color: rgba(255,255,255,0.75);
+    font-family: 'Barlow', sans-serif;
+    font-weight: 300;
+  }
+
+  .tag-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 24px;
+  }
+  .tag {
+    background: rgba(0,229,204,0.08);
+    border: 1px solid rgba(0,229,204,0.2);
+    color: var(--teal);
+    font-size: 11px;
+    letter-spacing: 1px;
+    padding: 4px 12px;
+    font-family: 'Barlow Condensed', sans-serif;
+    text-transform: uppercase;
+  }
+
+  /* ── SCENE STRUCTURE ──────────────── */
+  .scenes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2px;
+    margin-top: 48px;
+  }
+
+  .scene-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 28px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s;
+  }
+  .scene-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--fire), var(--gold));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s;
+  }
+  .scene-card:hover::after { transform: scaleX(1); }
+  .scene-card:hover { background: #1a1a1a; transform: translateY(-2px); }
+
+  .scene-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 64px;
+    color: rgba(255,69,0,0.12);
+    line-height: 1;
+    position: absolute;
+    right: 20px;
+    top: 10px;
+  }
+
+  .scene-tag {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--fire);
+    margin-bottom: 8px;
+  }
+
+  .scene-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+  }
+
+  .scene-timing {
+    font-size: 11px;
+    color: var(--teal);
+    font-family: 'Barlow Condensed', sans-serif;
+    letter-spacing: 2px;
+    margin-bottom: 16px;
+  }
+
+  .scene-desc {
+    font-size: 13px;
+    color: rgba(255,255,255,0.5);
+    line-height: 1.7;
+  }
+
+  .scene-desc ul {
+    list-style: none;
+    padding: 0;
+  }
+  .scene-desc li {
+    padding: 4px 0;
+    padding-left: 16px;
+    position: relative;
+  }
+  .scene-desc li::before {
+    content: '▸';
+    position: absolute; left: 0;
+    color: var(--fire);
+    font-size: 10px;
+  }
+
+  /* ── CAMERA GRID ──────────────────── */
+  .camera-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 2px;
+    margin-top: 48px;
+  }
+
+  .cam-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 24px;
+    text-align: center;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .cam-card::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(circle at 50% 0%, rgba(255,69,0,0.1) 0%, transparent 60%);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .cam-card:hover::before { opacity: 1; }
+  .cam-card:hover { transform: scale(1.02); }
+
+  .cam-icon {
+    font-size: 36px;
+    margin-bottom: 12px;
+    display: block;
+  }
+
+  .cam-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+
+  .cam-desc {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    font-family: 'Barlow Condensed', sans-serif;
+  }
+
+  /* ── VIRAL STRATEGY ───────────────── */
+  .viral-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    margin-top: 48px;
+  }
+  @media (max-width: 640px) { .viral-grid { grid-template-columns: 1fr; } }
+
+  .viral-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 32px;
+    transition: border-color 0.3s;
+  }
+  .viral-card:hover { border-color: var(--fire); }
+
+  .viral-icon {
+    font-size: 32px;
+    margin-bottom: 16px;
+    display: block;
+  }
+
+  .viral-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+    color: var(--gold);
+  }
+
+  .viral-list {
+    list-style: none;
+    padding: 0;
+  }
+  .viral-list li {
+    font-size: 13px;
+    color: rgba(255,255,255,0.65);
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Barlow', sans-serif;
+  }
+  .viral-list li::before {
+    content: '◈';
+    color: var(--fire);
+    font-size: 10px;
+    flex-shrink: 0;
+  }
+
+  /* ── COLOR & MOTION ───────────────── */
+  .tech-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 2px;
+    margin-top: 48px;
+  }
+  @media (max-width: 768px) { .tech-grid { grid-template-columns: 1fr; } }
+
+  .tech-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 28px;
+  }
+
+  .tech-card-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 20px;
+  }
+
+  .color-swatch-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .swatch {
+    width: 40px; height: 40px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: rgba(255,255,255,0.7);
+    font-family: 'Barlow Condensed', sans-serif;
+  }
+
+  .spec-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .spec-key {
+    font-size: 12px;
+    color: var(--muted);
+    font-family: 'Barlow Condensed', sans-serif;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .spec-val {
+    font-size: 12px;
+    color: var(--text);
+    font-family: 'Barlow', sans-serif;
+    font-weight: 500;
+  }
+
+  /* ── FORMATS ──────────────────────── */
+  .formats-section {
+    background: var(--mid);
+  }
+
+  .format-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    margin-top: 48px;
+  }
+  @media (max-width: 640px) { .format-cards { grid-template-columns: 1fr; } }
+
+  .format-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 32px 24px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .format-card.featured {
+    border-color: var(--fire);
+    background: rgba(255,69,0,0.05);
+  }
+  .format-card.featured::before {
+    content: 'BEST';
+    position: absolute;
+    top: 12px; right: 12px;
+    background: var(--fire);
+    color: #000;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    padding: 2px 8px;
+  }
+
+  .format-platform {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+    color: var(--gold);
+  }
+
+  .format-duration {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 48px;
+    font-weight: 900;
+    color: var(--text);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .format-unit {
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-family: 'Barlow Condensed', sans-serif;
+  }
+
+  .format-specs {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .format-spec {
+    font-size: 12px;
+    color: rgba(255,255,255,0.45);
+    font-family: 'Barlow', sans-serif;
+  }
+
+  /* ── PITFALLS ─────────────────────── */
+  .pitfall-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-top: 48px;
+  }
+  @media (max-width: 640px) { .pitfall-grid { grid-template-columns: 1fr; } }
+
+  .pitfall-card {
+    border: 1px solid #1e1e1e;
+    padding: 24px;
+  }
+  .pitfall-card.avoid { border-color: rgba(255,50,50,0.25); background: rgba(255,50,50,0.04); }
+  .pitfall-card.do    { border-color: rgba(0,229,100,0.25); background: rgba(0,229,100,0.04); }
+
+  .pitfall-header {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 24px;
+    letter-spacing: 2px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .pitfall-header.bad  { color: #FF3333; }
+  .pitfall-header.good { color: #00E564; }
+
+  .pitfall-list { list-style: none; padding: 0; }
+  .pitfall-list li {
+    font-size: 13px;
+    padding: 7px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    color: rgba(255,255,255,0.6);
+    font-family: 'Barlow', sans-serif;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .pitfall-list li .bullet { flex-shrink: 0; margin-top: 2px; }
+
+  /* ── ULTRA PROMPT ─────────────────── */
+  .ultra-section {
+    background: linear-gradient(135deg, #0d0d0d 0%, #100808 50%, #080d0d 100%);
+    position: relative;
+    overflow: hidden;
+  }
+  .ultra-section::before {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 50% 80% at 0% 50%, rgba(255,69,0,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 80% at 100% 50%, rgba(0,229,204,0.05) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .ultra-box {
+    background: rgba(0,0,0,0.6);
+    border: 1px solid rgba(255,69,0,0.3);
+    padding: 48px;
+    position: relative;
+    margin-top: 48px;
+    backdrop-filter: blur(20px);
+  }
+  .ultra-box::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--fire), var(--gold), var(--teal), transparent);
+    animation: shimmer 3s linear infinite;
+  }
+  @keyframes shimmer {
+    0%   { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  .ultra-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .ultra-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, rgba(255,179,0,0.3), transparent);
+  }
+
+  .ultra-text {
+    font-size: 15px;
+    line-height: 2;
+    color: rgba(255,255,255,0.8);
+    font-family: 'Barlow', sans-serif;
+    font-weight: 300;
+  }
+
+  /* ── FOOTER ───────────────────────── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 40px;
+    text-align: center;
+  }
+  .footer-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 36px;
+    letter-spacing: 4px;
+    background: linear-gradient(135deg, var(--fire), var(--gold));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 8px;
+  }
+  .footer-sub {
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-family: 'Barlow Condensed', sans-serif;
+  }
+  .footer-credit {
+    margin-top: 24px;
+    font-size: 12px;
+    color: rgba(255,255,255,0.2);
+    font-family: 'Barlow', sans-serif;
+  }
+  .footer-credit a { color: var(--teal); text-decoration: none; }
+
+  /* ── DIVIDER ──────────────────────── */
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    margin: 0;
+  }
+
+  /* ── COPIED TOAST ─────────────────── */
+  .toast {
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    background: var(--teal);
+    color: #000;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 12px 24px;
+    z-index: 999;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.3s;
+    pointer-events: none;
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ── REVEAL ───────────────────────── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(32px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+</style>
+</head>
+<body>
+
+<!-- TOAST -->
+<div class="toast" id="toast">✓ Prompt Copied!</div>
+
+<!-- ═══════════════ HERO ═══════════════ -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+
+  <!-- particles -->
+  <div id="particles"></div>
+
+  <div class="hero-content">
+    <div class="hero-badge">⚡ Cinematic Production Brief</div>
+    <h1 class="hero-title">APEX<br>DOWNHILL</h1>
+    <p class="hero-sub">Extreme Sports Video Production Guide</p>
+
+    <div class="hero-stats">
+      <div class="stat">
+        <span class="stat-num">4K</span>
+        <span class="stat-label">HDR Output</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num">6</span>
+        <span class="stat-label">Scene Blocks</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num">5</span>
+        <span class="stat-label">Camera Types</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num">∞</span>
+        <span class="stat-label">Viral Potential</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="scroll-hint">
+    <div class="scroll-line"></div>
+    SCROLL
+  </div>
+</section>
+
+<!-- ═══════════════ MASTER PROMPT ═══════════════ -->
+<section class="prompt-section">
+  <div class="container reveal">
+    <div class="section-label">Master Prompt</div>
+    <h2 class="section-title">COPY & USE<br>THIS PROMPT</h2>
+
+    <div class="prompt-box">
+      <div class="prompt-header">
+        <span class="prompt-title">🎬 Ultra Cinematic Prompt — Ready to Use</span>
+        <button class="copy-btn" onclick="copyPrompt()">Copy Prompt</button>
+      </div>
+      <p class="prompt-text" id="masterPrompt">
+        Ultra-realistic cinematic mountain bike race, intense downhill forest trail, golden hour lighting, dramatic shadows, dust particles in the air, slow motion mixed with hyper-speed cuts, 4K HDR, IMAX style framing.<br><br>
+        Professional riders wearing aerodynamic gear, GoPro POV shots, drone cinematic sweeping shots, tracking shots following the rider at high speed, wheel close-ups, suspension bouncing in extreme terrain.<br><br>
+        Dynamic camera angles: low ground shots, helmet POV, side tracking, overhead drone spinning shot, crash near-miss moments, sharp turns with dirt flying.<br><br>
+        Environmental detail: dense forest, sunlight rays piercing through trees, fog layers, mud splashes, rocks and roots, realistic physics simulation.<br><br>
+        Emotion & tension: heart-pounding race energy, adrenaline, risk, competition intensity, facial expressions focused and aggressive.<br><br>
+        Color grading: teal and orange cinematic LUT, high contrast, film grain, anamorphic lens flares. Transitions: match cuts, speed ramping, motion blur transitions, whip pans, slow-motion drops.<br><br>
+        Ending shot: rider jumps over cliff in slow motion, freeze frame mid-air, cinematic logo reveal, epic finish.<br><br>
+        Style references: Red Bull extreme sports, GoPro HERO footage, Hollywood action sports documentary style.<br><br>
+        Quality tags: ultra detailed, photorealistic, cinematic lighting, global illumination, ray tracing, volumetric light, depth of field, motion blur.
+      </p>
+      <div class="tag-row">
+        <span class="tag">Ultra Realistic</span>
+        <span class="tag">4K HDR</span>
+        <span class="tag">Motion Blur</span>
+        <span class="tag">Depth of Field</span>
+        <span class="tag">Volumetric Light</span>
+        <span class="tag">Global Illumination</span>
+        <span class="tag">Ray Tracing</span>
+        <span class="tag">Teal & Orange LUT</span>
+        <span class="tag">IMAX Framing</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══════════════ SCENES ═══════════════ -->
+<section>
+  <div class="container reveal">
+    <div class="section-label">Directing Breakdown</div>
+    <h2 class="section-title">SCENE<br>STRUCTURE</h2>
+
+    <div class="scenes-grid">
+
+      <div class="scene-card">
+        <span class="scene-num">01</span>
+        <div class="scene-tag">Scene 1</div>
+        <div class="scene-name">THE HOOK</div>
+        <div class="scene-timing">0 — 3 SECONDS</div>
+        <div class="scene-desc">
+          <ul>
+            <li>Slow motion wheel touching ground</li>
+            <li>Heartbeat sound design</li>
+            <li>Close-up on rider's eyes</li>
+            <li>Goal: Grab attention instantly</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="scene-card">
+        <span class="scene-num">02</span>
+        <div class="scene-tag">Scene 2</div>
+        <div class="scene-name">BUILD UP</div>
+        <div class="scene-timing">3 — 8 SECONDS</div>
+        <div class="scene-desc">
+          <ul>
+            <li>Drone sweeping over forest</li>
+            <li>Riders preparing, focusing</li>
+            <li>Heavy breathing sound</li>
+            <li>Music tension building</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="scene-card">
+        <span class="scene-num">03</span>
+        <div class="scene-tag">Scene 3</div>
+        <div class="scene-name">ACTION EXPLOSION</div>
+        <div class="scene-timing">8 — 15 SECONDS</div>
+        <div class="scene-desc">
+          <ul>
+            <li>Extreme high-speed cuts</li>
+            <li>Aggressive transitions</li>
+            <li>Every 0.5–1s cut rhythm</li>
+            <li>Synced to music drops</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="scene-card">
+        <span class="scene-num">04</span>
+        <div class="scene-tag">Scene 4</div>
+        <div class="scene-name">RISK MOMENT</div>
+        <div class="scene-timing">15 — 22 SECONDS</div>
+        <div class="scene-desc">
+          <ul>
+            <li>Near-crash slow motion</li>
+            <li>Dirt explosion close-up</li>
+            <li>Camera shake effect</li>
+            <li>Heart-stopping tension</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="scene-card">
+        <span class="scene-num">05</span>
+        <div class="scene-tag">Scene 5</div>
+        <div class="scene-name">CLIMAX</div>
+        <div class="scene-timing">22 — 27 SECONDS</div>
+        <div class="scene-desc">
+          <ul>
+            <li>Massive jump sequence</li>
+            <li>360° camera rotation</li>
+            <li>All angles combined</li>
+            <li>Music peak moment</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="scene-card">
+        <span class="scene-num">06</span>
+        <div class="scene-tag">Scene 6</div>
+        <div class="scene-name">VIRAL ENDING</div>
+        <div class="scene-timing">27 — 30 SECONDS</div>
+        <div class="scene-desc">
+          <ul>
+            <li>Freeze frame mid-air</li>
+            <li>Logo / brand text reveal</li>
+            <li>Cinematic boom sound</li>
+            <li>Maximum impact finish</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══════════════ CAMERAS ═══════════════ -->
+<section>
+  <div class="container reveal">
+    <div class="section-label">Camera Choreography</div>
+    <h2 class="section-title">5 CAMERA<br>TYPES</h2>
+
+    <div class="camera-grid">
+      <div class="cam-card">
+        <span class="cam-icon">🪖</span>
+        <div class="cam-name">Helmet POV</div>
+        <div class="cam-desc">First-person immersion</div>
+      </div>
+      <div class="cam-card">
+        <span class="cam-icon">🚁</span>
+        <div class="cam-name">FPV Drone</div>
+        <div class="cam-desc">Aggressive chase shots</div>
+      </div>
+      <div class="cam-card">
+        <span class="cam-icon">🎥</span>
+        <div class="cam-name">Cinematic Drone</div>
+        <div class="cam-desc">Sweeping aerial reveal</div>
+      </div>
+      <div class="cam-card">
+        <span class="cam-icon">🏎️</span>
+        <div class="cam-name">Ground Tracking</div>
+        <div class="cam-desc">Low angle speed illusion</div>
+      </div>
+      <div class="cam-card">
+        <span class="cam-icon">⚡</span>
+        <div class="cam-name">Phantom Cam</div>
+        <div class="cam-desc">Ultra slow motion hits</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══════════════ TECH SPECS ═══════════════ -->
+<section>
+  <div class="container reveal">
+    <div class="section-label">Technical Specs</div>
+    <h2 class="section-title">COLOR &<br>MOTION</h2>
+
+    <div class="tech-grid">
+
+      <div class="tech-card">
+        <div class="tech-card-title">Color Grading</div>
+        <div class="color-swatch-row">
+          <div class="swatch" style="background:#00E5CC;">TEAL</div>
+          <div class="swatch" style="background:#FF4500;">ORANGE</div>
+          <div class="swatch" style="background:#FFB300;">GOLD</div>
+          <div class="swatch" style="background:#0a0a0a; border:1px solid #222;">DARK</div>
+        </div>
+        <div class="spec-row"><span class="spec-key">LUT</span><span class="spec-val">Teal & Orange</span></div>
+        <div class="spec-row"><span class="spec-key">Contrast</span><span class="spec-val">High</span></div>
+        <div class="spec-row"><span class="spec-key">Highlights</span><span class="spec-val">Strong</span></div>
+        <div class="spec-row"><span class="spec-key">Shadows</span><span class="spec-val">Deep</span></div>
+        <div class="spec-row"><span class="spec-key">Film Grain</span><span class="spec-val">Light Overlay</span></div>
+        <div class="spec-row"><span class="spec-key">Lens Flare</span><span class="spec-val">Anamorphic</span></div>
+      </div>
+
+      <div class="tech-card">
+        <div class="tech-card-title">Motion Effects</div>
+        <div class="spec-row"><span class="spec-key">Ramping</span><span class="spec-val">Speed Ramp</span></div>
+        <div class="spec-row"><span class="spec-key">Blur</span><span class="spec-val">Motion Blur</span></div>
+        <div class="spec-row"><span class="spec-key">Shake</span><span class="spec-val">Subtle Camera Shake</span></div>
+        <div class="spec-row"><span class="spec-key">Transitions</span><span class="spec-val">Whip Pan / Match Cut</span></div>
+        <div class="spec-row"><span class="spec-key">FPS</span><span class="spec-val">High FPS + Slow Mo</span></div>
+        <div class="spec-row"><span class="spec-key">Cut Rhythm</span><span class="spec-val">0.5–1s / beat sync</span></div>
+      </div>
+
+      <div class="tech-card">
+        <div class="tech-card-title">Render Quality</div>
+        <div class="spec-row"><span class="spec-key">Resolution</span><span class="spec-val">4K HDR</span></div>
+        <div class="spec-row"><span class="spec-key">Style</span><span class="spec-val">Photorealistic</span></div>
+        <div class="spec-row"><span class="spec-key">Lighting</span><span class="spec-val">Global Illumination</span></div>
+        <div class="spec-row"><span class="spec-key">Shadows</span><span class="spec-val">Ray Tracing</span></div>
+        <div class="spec-row"><span class="spec-key">Depth</span><span class="spec-val">Depth of Field</span></div>
+        <div class="spec-row"><span class="spec-key">Frame</span><span class="spec-val">IMAX Framing</span></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══════════════ VIRAL STRATEGY ═══════════════ -->
+<section>
+  <div class="container reveal">
+    <div class="section-label">Viral Strategy</div>
+    <h2 class="section-title">WHAT MAKES<br>MILLIONS</h2>
+
+    <div class="viral-grid">
+      <div class="viral-card">
+        <span class="viral-icon">🧠</span>
+        <div class="viral-title">Psychology</div>
+        <ul class="viral-list">
+          <li>Speed triggers dopamine release</li>
+          <li>Danger creates tension & relief</li>
+          <li>Near-death moments are unforgettable</li>
+          <li>Unexpected moments break patterns</li>
+          <li>POV creates personal immersion</li>
+        </ul>
+      </div>
+
+      <div class="viral-card">
+        <span class="viral-icon">🎵</span>
+        <div class="viral-title">Sound Design</div>
+        <ul class="viral-list">
+          <li>Cinematic trailer build-up music</li>
+          <li>Strong bass drops at climax</li>
+          <li>Heartbeat in the opener</li>
+          <li>Wind rush & tire friction SFX</li>
+          <li>Sudden silence before impact</li>
+        </ul>
+      </div>
+
+      <div class="viral-card">
+        <span class="viral-icon">🔥</span>
+        <div class="viral-title">Hook Ideas</div>
+        <ul class="viral-list">
+          <li>"Last rider survives insane downhill"</li>
+          <li>"Fastest mountain bike ever recorded"</li>
+          <li>"1 second from death"</li>
+          <li>"POV crash fake (trust me)" bait</li>
+          <li>"Impossible jump — real or CGI?"</li>
+        </ul>
+      </div>
+
+      <div class="viral-card">
+        <span class="viral-icon">📱</span>
+        <div class="viral-title">Platform Optimization</div>
+        <ul class="viral-list">
+          <li>Vertical 9:16 format first</li>
+          <li>Hook within first 2 seconds</li>
+          <li>No boring shots — ever</li>
+          <li>Cuts every 0.5–1 second</li>
+          <li>Loop-friendly ending</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══════════════ FORMATS ═══════════════ -->
+<section class="formats-section">
+  <div class="container reveal">
+    <div class="section-label">Platform Formats</div>
+    <h2 class="section-title">OPTIMAL<br>DURATIONS</h2>
+
+    <div class="format-cards">
+      <div class="format-card featured">
+        <div class="format-platform">TikTok</div>
+        <div class="format-duration">8–20</div>
+        <div class="format-unit">seconds</div>
+        <div class="format-specs">
+          <span class="format-spec">9:16 Vertical</span>
+          <span class="format-spec">4K / High FPS</span>
+          <span class="format-spec">Autoplay Loop</span>
+          <span class="format-spec">Caption Hook Required</span>
+        </div>
+      </div>
+
+      <div class="format-card featured">
+        <div class="format-platform">Reels</div>
+        <div class="format-duration">15–30</div>
+        <div class="format-unit">seconds</div>
+        <div class="format-specs">
+          <span class="format-spec">9:16 Vertical</span>
+          <span class="format-spec">Trending Audio</span>
+          <span class="format-spec">Cover Frame Essential</span>
+          <span class="format-spec">Text Overlay Boost</span>
+        </div>
+      </div>
+
+      <div class="format-card">
+        <div class="format-platform">YT Shorts</div>
+        <div class="format-duration">15–60</div>
+        <div class="format-unit">seconds</div>
+        <div class="format-specs">
+          <span class="format-spec">9:16 Vertical</span>
+          <span class="format-spec">Chapter-able</span>
+          <span class="format-spec">Subscribe CTA End</span>
+          <span class="format-spec">Thumbnail Critical</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══════════════ PITFALLS ═══════════════ -->
+<section>
+  <div class="container reveal">
+    <div class="section-label">Common Mistakes</div>
+    <h2 class="section-title">AVOID &<br>EXECUTE</h2>
+
+    <div class="pitfall-grid">
+      <div class="pitfall-card avoid">
+        <div class="pitfall-header bad">❌ AVOID THESE</div>
+        <ul class="pitfall-list">
+          <li><span class="bullet">✗</span>Long boring static shots</li>
+          <li><span class="bullet">✗</span>No movement in frame</li>
+          <li><span class="bullet">✗</span>Flat default lighting</li>
+          <li><span class="bullet">✗</span>Fixed camera — no energy</li>
+          <li><span class="bullet">✗</span>Music doesn't match cuts</li>
+          <li><span class="bullet">✗</span>Slow hook — loses viewer</li>
+        </ul>
+      </div>
+      <div class="pitfall-card do">
+        <div class="pitfall-header good">✓ ALWAYS DO THIS</div>
+        <ul class="pitfall-list">
+          <li><span class="bullet">✓</span>Hook in first 2 seconds</li>
+          <li><span class="bullet">✓</span>Camera always in motion</li>
+          <li><span class="bullet">✓</span>Dramatic cinematic lighting</li>
+          <li><span class="bullet">✓</span>Mix of all camera types</li>
+          <li><span class="bullet">✓</span>Music synced to every cut</li>
+          <li><span class="bullet">✓</span>Treat it like a Red Bull ad</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══════════════ ULTRA PROMPT ═══════════════ -->
+<section class="ultra-section">
+  <div class="container reveal">
+    <div class="section-label">Ultra Upgrade</div>
+    <h2 class="section-title">MAXIMUM<br>POWER PROMPT</h2>
+
+    <div class="ultra-box">
+      <div class="ultra-label">🔥 Ultra Version — Maximum Quality</div>
+      <p class="ultra-text" id="ultraPrompt">
+        Extreme cinematic downhill mountain bike race, hyper-realistic physics, ultra fast motion, dynamic camera choreography, intense adrenaline energy, professional athletes racing through dangerous forest terrain, dust, mud, sunlight rays, slow motion + speed ramping mix, FPV drone shots, helmet POV, close-up wheel shots, aggressive editing, cinematic color grading, high contrast, volumetric lighting, epic storytelling, Hollywood sports documentary style, viral content optimized, high engagement visuals, dramatic tension, near crash moments, impossible jumps, IMAX quality, 4K HDR, ultra detailed textures.
+      </p>
+      <div style="margin-top:24px;">
+        <button class="copy-btn" onclick="copyUltra()">Copy Ultra Prompt</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ FOOTER ═══════════════ -->
+<footer>
+  <div class="footer-logo">APEX DOWNHILL</div>
+  <div class="footer-sub">Cinematic Production Brief · AI Video Generation Guide</div>
+  <div class="footer-credit">Built by <a href="https://linkedin.com/in/omar-ahmed-7b97613b1" target="_blank">Omar Ahmed</a> · omarahameds2010-lab.github.io/omar-os/</div>
+</footer>
+
+<script>
+  // particles
+  (function(){
+    const wrap = document.getElementById('particles');
+    for(let i = 0; i < 25; i++){
+      const p = document.createElement('div');
+      p.className = 'particle';
+      const size = Math.random()*4+1;
+      const duration = Math.random()*12+8;
+      const delay = Math.random()*10;
+      const left = Math.random()*100;
+      const drift = (Math.random()-0.5)*200;
+      p.style.cssText = `
+        width:${size}px; height:${size}px;
+        left:${left}%;
+        animation-duration:${duration}s;
+        animation-delay:${delay}s;
+        --drift:${drift}px;
+      `;
+      wrap.appendChild(p);
+    }
+  })();
+
+  // reveal on scroll
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if(e.isIntersecting) e.target.classList.add('visible');
+    });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  // copy functions
+  function showToast(){
+    const t = document.getElementById('toast');
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  }
+
+  function copyPrompt(){
+    const text = document.getElementById('masterPrompt').innerText;
+    navigator.clipboard.writeText(text).then(showToast);
+  }
+
+  function copyUltra(){
+    const text = document.getElementById('ultraPrompt').innerText;
+    navigator.clipboard.writeText(text).then(showToast);
+  }
+</script>
+</body>
+</html>
